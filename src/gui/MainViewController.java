@@ -17,68 +17,72 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import model.services.DepartmentService;
+import model.services.SellerServices;
 
 public class MainViewController implements Initializable {
-	
+
 	@FXML
 	private MenuItem menuItemVendedores;
 	@FXML
 	private MenuItem menuItemDepartamentos;
 	@FXML
 	private MenuItem menuItemAbout;
-	
+
 	@FXML
 	public void onMenuItemVendedoresAction() {
-		System.out.println("onMenuItemVendedoresAction");
+		loadView("/gui/SellerList.fxml", (SellerListController controller) -> {
+			controller.setSellerService(new SellerServices());
+			controller.updateTableView();
+		});
 	}
-	
+
 	@FXML
 	public void onMenuItemAboutAction() {
-		loadView("/gui/About.fxml", x -> {});
+		loadView("/gui/About.fxml", x -> {
+		});
 	}
-	
+
 	@FXML
 	public void onMenuItemDepartamentosAction() {
-		loadView("/gui/DepartmentList.fxml", (DepartmentListController controller) ->{
-		controller.setDepService(new DepartmentService());
-		controller.updateTableView();
+		loadView("/gui/DepartmentList.fxml", (DepartmentListController controller) -> {
+			controller.setDepService(new DepartmentService());
+			controller.updateTableView();
 		});
-		//passando uma funcao lambda para  injetar dependencia em DepControler de Service
+		// passando uma funcao lambda para injetar dependencia em DepControler de
+		// Service
 	}
-	
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
-	//metodo recebendo uma expressão lambda para tornar generico
+
+	// metodo recebendo uma expressão lambda para tornar generico
 	private synchronized <T> void loadView(String absoluteName, Consumer<T> actionIni) {
 		try {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
-		VBox newVbox = loader.load();
-		
-		//salva uma referencia pra view principal
-		Scene mainScene = Main.getMainScene();
-		
-		//cria uma referencia pro conteudo da view principal
-		VBox mainVbox = (VBox)((ScrollPane) mainScene.getRoot()).getContent();
-		
-		//salva os filhos da view principal e limpa a view principal
-		Node mainMenu = mainVbox.getChildren().get(0);
-		mainVbox.getChildren().clear();
-		
-		//adiciona os filhos das duasd view
-		mainVbox.getChildren().add(mainMenu);
-		mainVbox.getChildren().addAll(newVbox.getChildren());
-		
-		// ACIONA O CONSUMER
-		T controller = loader.getController();
-		actionIni.accept(controller);
-		}
-		catch(IOException e){
-			Alerts.showAlert("IO Exception", null , e.getMessage(), AlertType.ERROR);
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
+			VBox newVbox = loader.load();
+
+			// salva uma referencia pra view principal
+			Scene mainScene = Main.getMainScene();
+
+			// cria uma referencia pro conteudo da view principal
+			VBox mainVbox = (VBox) ((ScrollPane) mainScene.getRoot()).getContent();
+
+			// salva os filhos da view principal e limpa a view principal
+			Node mainMenu = mainVbox.getChildren().get(0);
+			mainVbox.getChildren().clear();
+
+			// adiciona os filhos das duasd view
+			mainVbox.getChildren().add(mainMenu);
+			mainVbox.getChildren().addAll(newVbox.getChildren());
+
+			// ACIONA O CONSUMER
+			T controller = loader.getController();
+			actionIni.accept(controller);
+		} catch (IOException e) {
+			Alerts.showAlert("IO Exception", null, e.getMessage(), AlertType.ERROR);
 		}
 	}
 
